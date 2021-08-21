@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Realtime;
 using TMPro;
+using System;
 
 public class RoomListItem : MonoBehaviour
 {
@@ -21,4 +22,5 @@ public class RoomListItem : MonoBehaviour
     {
         Launcher.Instance.JoinRoom(info);
     }
+
 }

@@ -18,6 +18,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDmangeable
 
 	[SerializeField] Item[] items;
 
+	public ParticleSystem MuzzleFlash;
+
 	int itemIndex;
 	int previousItemIndex = -1;
 
@@ -99,10 +101,12 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDmangeable
             }
         }
 
-        if (Input.GetMouseButtonDown(0))
+		if (Input.GetMouseButtonDown(0))
 		{
+			MuzzleFlash.Play();
 			items[itemIndex].Use();
 		}
+	
 		if (transform.position.y < -30f)
         {
 			Die();

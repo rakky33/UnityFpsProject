@@ -11,6 +11,9 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public static Launcher Instance;
 
+    List<RoomInfo> fullRoomList = new List<RoomInfo>();
+    List<RoomListItem> roomListItems = new List<RoomListItem>();
+
     [SerializeField] TMP_InputField roomManeInputField;
     [SerializeField] TMP_Text errorText;
     [SerializeField] TMP_Text RoomNameText;
@@ -42,7 +45,6 @@ public class Launcher : MonoBehaviourPunCallbacks
     {
         MenuManger.Instance.OpenMenu("title");
         Debug.Log("Joined Lobby");
-        PhotonNetwork.NickName = "Player " + Random.Range(0, 1000).ToString("0000");
     }
 
     public void CreateRoom()
@@ -112,16 +114,39 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
-        foreach(Transform trans in roomListContent)
+        foreach (RoomInfo updatedRoom in roomList)
         {
-            Destroy(trans.gameObject);
+            RoomInfo existingRoom = fullRoomList.Find(x => x.Name.Equals(updatedRoom.Name)); // Check to see if we have that room already
+            if (existingRoom == null) // WE DO NOT HAVE IT
+            {
+                fullRoomList.Add(updatedRoom); // Add the room to the full room list
+            }
+            else if (updatedRoom.RemovedFromList) // WE DO HAVE IT, so check if it has been removed
+            {
+                fullRoomList.Remove(existingRoom); // Remove it from our full room list
+            }
         }
-        for(int i = 0; i < roomList.Count; i++)
+        RenderRoomList();
+    }
+
+    void RenderRoomList()
+    {
+        RemoveRoomList();
+        foreach (RoomInfo roomInfo in fullRoomList)
         {
-            if (roomList[i].RemovedFromList)
-                continue;
-            Instantiate(roomListItemPrefab, roomListContent).GetComponent<RoomListItem>().SetUp(roomList[i]);
+            RoomListItem roomListItem = Instantiate(roomListItemPrefab, roomListContent).GetComponent<RoomListItem>();
+            roomListItem.SetUp(roomInfo);
+            roomListItems.Add(roomListItem);
         }
+    }
+
+    void RemoveRoomList()
+    {
+        foreach (RoomListItem roomListItem in roomListItems)
+        {
+            Destroy(roomListItem.gameObject);
+        }
+        roomListItems.Clear();
     }
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {

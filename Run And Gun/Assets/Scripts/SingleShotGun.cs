@@ -8,7 +8,7 @@ public class SingleShotGun : Gun
     [SerializeField] Camera cam;
 
     PhotonView PV;
-
+    
     void Awake()
     {
         PV = GetComponent<PhotonView>();
