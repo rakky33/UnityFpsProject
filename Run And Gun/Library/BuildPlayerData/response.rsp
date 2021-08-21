@@ -14,6 +14,7 @@
 -a="D:\I AM UNITY\Run And Gun\Library\PlayerScriptAssemblies\PhotonUnityNetworking.dll"
 -a="D:\I AM UNITY\Run And Gun\Library\PlayerScriptAssemblies\Unity.RenderPipeline.Universal.ShaderLibrary.dll"
 -a="D:\I AM UNITY\Run And Gun\Library\PlayerScriptAssemblies\Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll"
+-a="D:\I AM UNITY\Run And Gun\Library\PlayerScriptAssemblies\Unity.Postprocessing.Runtime.dll"
 -a="D:\I AM UNITY\Run And Gun\Library\PackageCache\com.unity.nuget.newtonsoft-json@2.0.0\Runtime\AOT\Newtonsoft.Json.dll"
 -a="D:\I AM UNITY\Run And Gun\Assets\Photon\PhotonLibs\Photon3Unity3D.dll"
 -a="D:\I AM UNITY\Run And Gun\Assets\Photon\PhotonLibs\WebSocket\websocket-sharp.dll"
