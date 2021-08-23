@@ -8,13 +8,21 @@ public class SingleShotGun : Gun
     [SerializeField] Camera cam;
 
     PhotonView PV;
+
+    private AudioSource audiosource;
+    public AudioClip AKsound;
+    public AudioClip Pistolsound;
+
+    public PlayerController whichGun;
     
     void Awake()
     {
+        audiosource = GetComponent<AudioSource>();
         PV = GetComponent<PhotonView>();
     }
     public override void Use()
     {
+        whichGun = FindObjectOfType<PlayerController>();
         Shoot();
     }
 
@@ -32,9 +40,17 @@ public class SingleShotGun : Gun
     [PunRPC]
     void RPC_Shoot(Vector3 hitPosition, Vector3 hitNormal)
     {
+        if (whichGun.itemIndex == 0)
+        {
+            audiosource.PlayOneShot(AKsound);
+        }
+        else if (whichGun.itemIndex == 1)
+        {
+            audiosource.PlayOneShot(Pistolsound);
+        }
         Collider[] colliders = Physics.OverlapSphere(hitPosition, 0.3f);
         if(colliders.Length != 0)
-        {
+        {           
             GameObject bulletImpactObj = Instantiate(bulletImpactPrefab, hitPosition + hitNormal * 0.001f, Quaternion.LookRotation(hitNormal, Vector3.up) * bulletImpactPrefab.transform.rotation);
             Destroy(bulletImpactObj, 5f);
             bulletImpactObj.transform.SetParent(colliders[0].transform);

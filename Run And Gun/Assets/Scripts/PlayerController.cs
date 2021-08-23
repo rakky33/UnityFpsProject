@@ -8,46 +8,66 @@ using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class PlayerController : MonoBehaviourPunCallbacks, IDmangeable
 {
-	[SerializeField] Image healthbarImage;
-
-	[SerializeField] GameObject ui;
-
+	
+	[Header("Looking")]
 	[SerializeField] GameObject cameraHolder;
-
-	[SerializeField] float mouseSensitivity, sprintSpeed, walkSpeed, jumpForce, smoothTime;
-
-	[SerializeField] Item[] items;
-
-	public ParticleSystem MuzzleFlash;
-
-	int itemIndex;
-	int previousItemIndex = -1;
-
 	float verticalLookRotation;
-	bool grounded;
-	Vector3 smoothMoveVelocity;
-	Vector3 moveAmount;
+	Camera cam;
+	[SerializeField]
+	float mouseSensitivity;
 
+	[Header("Movement")]
+	public float moveSpeed = 6f;
+	public float movementMultiplier = 10f;
+	[SerializeField]public float airtMultiplier = 0.15f;
+	float horizontalMovement;
+	float verticalMovement;
+	float PlayerHeight = 4f;
+	float groundDrag = 6f;
+	float airDrag = 1f;
+	Vector3 moveDirection;
 	Rigidbody rb;
 
-	PhotonView PV;
+	[Header("KeyBlinds")]
+	[SerializeField] KeyCode jumpKey = KeyCode.Space;
 
+	[Header("Jumping")]
+	public float jumpForce = 12f;
+	bool isGrounded;
+
+	[Header("Gun system")]
+	[SerializeField] Item[] items;
+	public float fireRateAK = 20f;
+	private float nextTimeToFireAK = 0f;
+	public float fireRatePistol = 0.5f;
+	private float nextTimeToFirePistol = 0f;
+	public ParticleSystem MuzzleFlash;
+	public int itemIndex;
+	int previousItemIndex = -1;
+
+	[Header("Health system")]
 	const float maxHealth = 100f;
 	float currenthealth = maxHealth;
+	[SerializeField] Image healthbarImage;
+	[SerializeField] GameObject ui;
 
+	[Header("Other")]
+	PhotonView PV;
 	PlayerManager playerManager;
 
 	void Awake()
 	{
 		rb = GetComponent<Rigidbody>();
 		PV = GetComponent<PhotonView>();
+		cam = GetComponentInChildren<Camera>();
 
 		playerManager =  PhotonView.Find((int)PV.InstantiationData[0]).GetComponent<PlayerManager>();
 	}
 
 	void Start()
 	{
-		Cursor.lockState = CursorLockMode.Locked;
+		//destroy other object that isn't mine
+		rb.freezeRotation = true;
 		if (PV.IsMine)
 		{
 			EquipItem(0);
@@ -62,13 +82,23 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDmangeable
 
 	void Update()
 	{
+
 		if (!PV.IsMine)
 			return;
-
+		//Jump raycast to chewck is ground?
+		isGrounded = Physics.Raycast(transform.position, Vector3.down, PlayerHeight / 2 + 0.1f);
+		//Some fuction
 		Look();
-		Move();
-		Jump();
-
+		MyInputWalk();
+		ControlDrag();
+		//If press spacebar so u will jump
+        if (Input.GetKeyDown(jumpKey) && isGrounded)
+        {
+			Debug.Log("jump");
+			//Jump
+			Jump();
+        }
+		//You can pick Item by press 1,2
 		for (int i = 0; i < items.Length; i++)
 		{
 			if (Input.GetKeyDown((i + 1).ToString()))
@@ -77,7 +107,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDmangeable
 				break;
 			}
 		}
-
+		//And u can pick Item by scroll wheel
         if (Input.GetAxisRaw("Mouse ScrollWheel") > 0f)
         {
             if (itemIndex >= items.Length - 1)
@@ -100,19 +130,42 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDmangeable
                 EquipItem(itemIndex - 1);
             }
         }
-
-		if (Input.GetMouseButtonDown(0))
+		//fire AK(U can hold) ((I need to fix it that when u pick up it wait for 3 secound and it can shoot))
+		if (Input.GetButton("Fire1") && Time.time >= nextTimeToFireAK)
 		{
-			MuzzleFlash.Play();
-			items[itemIndex].Use();
+			if (itemIndex == 0)
+			{				
+				nextTimeToFireAK = Time.time + 1f / fireRateAK;
+				MuzzleFlash.Play();
+				items[itemIndex].Use();				
+			}
 		}
-	
+		//fire Pistol (U have to click)
+		if (Input.GetButtonDown("Fire1") && Time.time >= nextTimeToFirePistol)
+		{
+			if (itemIndex == 1)
+			{				
+				nextTimeToFireAK = Time.time + 1f / fireRatePistol;
+				MuzzleFlash.Play();
+				items[itemIndex].Use();
+			}
+		}
+	//If y== -30(or if u fell out of the world) u die
 		if (transform.position.y < -30f)
         {
 			Die();
         }
 	}
 
+	//Walk Input Get W A S D movement W = 1,S = -1,A = 1,D = -1
+	void MyInputWalk()
+	{
+		horizontalMovement = Input.GetAxisRaw("Horizontal");
+		verticalMovement = Input.GetAxisRaw("Vertical");
+
+		moveDirection = transform.forward * verticalMovement + transform.right * horizontalMovement;		
+	}
+	//Get mouseX mouseY then controll camera and make it MathF so u cannot look over 90degree in Yaxis
 	void Look()
 	{
 		transform.Rotate(Vector3.up * Input.GetAxisRaw("Mouse X") * mouseSensitivity);
@@ -123,21 +176,47 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDmangeable
 		cameraHolder.transform.localEulerAngles = Vector3.left * verticalLookRotation;
 	}
 
-	void Move()
-	{
-		Vector3 moveDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical")).normalized;
+	//Make it not slippy when u move
+	void ControlDrag()
+    {
+        if (isGrounded)
+        {
+			rb.drag = groundDrag;
+        }
+        else
+        {
+			rb.drag = airDrag;
+        }
+    }
 
-		moveAmount = Vector3.SmoothDamp(moveAmount, moveDir * (Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : walkSpeed), ref smoothMoveVelocity, smoothTime);
-	}
-
+	//Add force to bean when u jump
 	void Jump()
-	{
-		if (Input.GetKeyDown(KeyCode.Space) && grounded)
-		{
-			rb.AddForce(transform.up * jumpForce);
-		}
-	}
+    {
+		rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+    }
 
+	//break other movement so it will only move onwer client and not confuse the photon network
+	private void FixedUpdate()
+    {
+		if (!PV.IsMine)
+			return;
+		MovePlayer();
+    }
+
+	//Moveplayer use force to move
+	void MovePlayer()
+    {
+        if (isGrounded)
+        {
+			rb.AddForce(moveDirection.normalized * moveSpeed * movementMultiplier, ForceMode.Acceleration);
+        }
+		else if (!isGrounded)
+        {
+			rb.AddForce(moveDirection.normalized * moveSpeed * movementMultiplier * airtMultiplier, ForceMode.Acceleration);	
+		}
+    }
+
+	//Decide what item it should pick
 	void EquipItem(int _index)
     {
 		if (_index == previousItemIndex)
@@ -163,6 +242,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDmangeable
         }
     }
 
+	//Show the gun that onwer pick to other
 	public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
 	{
 		if (!PV.IsMine && targetPlayer == PV.Owner)
@@ -171,24 +251,13 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDmangeable
 		}
 	}
 
-	public void SetGroundedState(bool _grounded)
-	{
-		grounded = _grounded;
-	}
-
-	void FixedUpdate()
-	{
-		if (!PV.IsMine)
-			return;
-
-		rb.MovePosition(rb.position + transform.TransformDirection(moveAmount) * Time.fixedDeltaTime);
-	}
-
+	//Get damage by network synch
 	public void TakeDamage(float damage)
 	{
 		PV.RPC("RPC_TakeDamage", RpcTarget.All, damage);
 	}
 
+	//Make damage by network synch
 	[PunRPC]
 	void RPC_TakeDamage(float damage)
 	{
@@ -205,8 +274,10 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDmangeable
         }
 	}
 
+	//Die system
 	void Die()
     {
 		playerManager.Die();
     }
+
 }
