@@ -13,11 +13,11 @@ public class SingleShotGun : Gun
     public AudioClip AKsound;
     public AudioClip Pistolsound;
 
-    public PlayerController whichGun;
+    PlayerGunSystem whichGun;
     
     void Awake()
     {
-        whichGun = FindObjectOfType<PlayerController>();
+        whichGun = FindObjectOfType<PlayerGunSystem>();
         audiosource = GetComponent<AudioSource>();
         PV = GetComponent<PhotonView>();
     }
