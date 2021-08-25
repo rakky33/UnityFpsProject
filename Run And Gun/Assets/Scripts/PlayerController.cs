@@ -8,32 +8,8 @@ using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class PlayerController : MonoBehaviourPunCallbacks, IDmangeable
 {
-	
-	[Header("Looking")]
-	[SerializeField] GameObject cameraHolder;
-	float verticalLookRotation;
+
 	Camera cam;
-	[SerializeField]
-	float mouseSensitivity;
-
-	[Header("Movement")]
-	public float moveSpeed = 6f;
-	public float movementMultiplier = 10f;
-	[SerializeField]public float airtMultiplier = 0.15f;
-	float horizontalMovement;
-	float verticalMovement;
-	float PlayerHeight = 4f;
-	float groundDrag = 6f;
-	float airDrag = 1f;
-	Vector3 moveDirection;
-	Rigidbody rb;
-
-	[Header("KeyBlinds")]
-	[SerializeField] KeyCode jumpKey = KeyCode.Space;
-
-	[Header("Jumping")]
-	public float jumpForce = 12f;
-	bool isGrounded;
 
 	[Header("Gun system")]
 	[SerializeField] Item[] items;
@@ -54,11 +30,13 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDmangeable
 	[Header("Other")]
 	PhotonView PV;
 	PlayerManager playerManager;
+    Rigidbody rb;
 
-	void Awake()
+    void Awake()
 	{
-		rb = GetComponent<Rigidbody>();
-		PV = GetComponent<PhotonView>();
+
+        rb = GetComponent<Rigidbody>();
+        PV = GetComponent<PhotonView>();
 		cam = GetComponentInChildren<Camera>();
 
 		playerManager =  PhotonView.Find((int)PV.InstantiationData[0]).GetComponent<PlayerManager>();
@@ -67,17 +45,23 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDmangeable
 	void Start()
 	{
 		//destroy other object that isn't mine
+		
+
 		rb.freezeRotation = true;
 		if (PV.IsMine)
 		{
 			EquipItem(0);
 		}
-		else
+		else 
 		{
+			if (rb == null)
+				return;
 			Destroy(ui);
 			Destroy(GetComponentInChildren<Camera>().gameObject);
 			Destroy(rb);
-		}
+			this.GetComponent<PlayerController>().enabled = false;
+            this.GetComponent<PlayerMovement>().enabled = false;
+        }
 	}
 
 	void Update()
@@ -85,19 +69,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDmangeable
 
 		if (!PV.IsMine)
 			return;
-		//Jump raycast to chewck is ground?
-		isGrounded = Physics.Raycast(transform.position, Vector3.down, PlayerHeight / 2 + 0.1f);
-		//Some fuction
-		Look();
-		MyInputWalk();
-		ControlDrag();
-		//If press spacebar so u will jump
-        if (Input.GetKeyDown(jumpKey) && isGrounded)
-        {
-			Debug.Log("jump");
-			//Jump
-			Jump();
-        }
 		//You can pick Item by press 1,2
 		for (int i = 0; i < items.Length; i++)
 		{
@@ -153,68 +124,12 @@ public class PlayerController : MonoBehaviourPunCallbacks, IDmangeable
 	//If y== -30(or if u fell out of the world) u die
 		if (transform.position.y < -30f)
         {
+			Debug.Log("Fell die");
 			Die();
         }
 	}
 
-	//Walk Input Get W A S D movement W = 1,S = -1,A = 1,D = -1
-	void MyInputWalk()
-	{
-		horizontalMovement = Input.GetAxisRaw("Horizontal");
-		verticalMovement = Input.GetAxisRaw("Vertical");
 
-		moveDirection = transform.forward * verticalMovement + transform.right * horizontalMovement;		
-	}
-	//Get mouseX mouseY then controll camera and make it MathF so u cannot look over 90degree in Yaxis
-	void Look()
-	{
-		transform.Rotate(Vector3.up * Input.GetAxisRaw("Mouse X") * mouseSensitivity);
-
-		verticalLookRotation += Input.GetAxisRaw("Mouse Y") * mouseSensitivity;
-		verticalLookRotation = Mathf.Clamp(verticalLookRotation, -90f, 90f);
-
-		cameraHolder.transform.localEulerAngles = Vector3.left * verticalLookRotation;
-	}
-
-	//Make it not slippy when u move
-	void ControlDrag()
-    {
-        if (isGrounded)
-        {
-			rb.drag = groundDrag;
-        }
-        else
-        {
-			rb.drag = airDrag;
-        }
-    }
-
-	//Add force to bean when u jump
-	void Jump()
-    {
-		rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
-    }
-
-	//break other movement so it will only move onwer client and not confuse the photon network
-	private void FixedUpdate()
-    {
-		if (!PV.IsMine)
-			return;
-		MovePlayer();
-    }
-
-	//Moveplayer use force to move
-	void MovePlayer()
-    {
-        if (isGrounded)
-        {
-			rb.AddForce(moveDirection.normalized * moveSpeed * movementMultiplier, ForceMode.Acceleration);
-        }
-		else if (!isGrounded)
-        {
-			rb.AddForce(moveDirection.normalized * moveSpeed * movementMultiplier * airtMultiplier, ForceMode.Acceleration);	
-		}
-    }
 
 	//Decide what item it should pick
 	void EquipItem(int _index)

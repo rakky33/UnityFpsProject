@@ -17,12 +17,12 @@ public class SingleShotGun : Gun
     
     void Awake()
     {
+        whichGun = FindObjectOfType<PlayerController>();
         audiosource = GetComponent<AudioSource>();
         PV = GetComponent<PhotonView>();
     }
     public override void Use()
     {
-        whichGun = FindObjectOfType<PlayerController>();
         Shoot();
     }
 

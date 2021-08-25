@@ -6,9 +6,11 @@ ScriptsOnlyBuild:
     - Launcher
     - Menu
     - MenuManger
+    - MoveCamera
     - PlayerController
     - PlayerListItem
     - PlayerManager
+    - PlayerMovement
     - PlayerNameManager
     - RoomListItem
     - RoomManager
@@ -163,10 +165,14 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 5938}
     - Class: 114
-      Script: {instanceID: 6616}
+      Script: {instanceID: 6620}
     - Class: 114
-      Script: {instanceID: 6914}
+      Script: {instanceID: 6916}
+    - Class: 114
+      Script: {instanceID: 20340}
     - Class: 115
+      Script: {instanceID: 0}
+    - Class: 134
       Script: {instanceID: 0}
     - Class: 157
       Script: {instanceID: 0}
@@ -207,8 +213,6 @@ ScriptsOnlyBuild:
       Script: {instanceID: 0}
     - Class: 54
       Script: {instanceID: 0}
-    - Class: 72
-      Script: {instanceID: 0}
     - Class: 81
       Script: {instanceID: 0}
     - Class: 82
@@ -243,8 +247,6 @@ ScriptsOnlyBuild:
       Script: {instanceID: 2238}
     - Class: 114
       Script: {instanceID: 2318}
-    - Class: 114
-      Script: {instanceID: 2372}
     - Class: 114
       Script: {instanceID: 2404}
     - Class: 114
@@ -289,8 +291,6 @@ ScriptsOnlyBuild:
       Script: {instanceID: 4144}
     - Class: 114
       Script: {instanceID: 4442}
-    - Class: 114
-      Script: {instanceID: 4518}
     - Class: 114
       Script: {instanceID: 4636}
     - Class: 114
@@ -342,23 +342,27 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 6064}
     - Class: 114
-      Script: {instanceID: 6106}
+      Script: {instanceID: 6088}
     - Class: 114
-      Script: {instanceID: 6410}
+      Script: {instanceID: 6108}
     - Class: 114
-      Script: {instanceID: 6636}
+      Script: {instanceID: 6228}
     - Class: 114
-      Script: {instanceID: 6920}
+      Script: {instanceID: 6414}
     - Class: 114
-      Script: {instanceID: 6990}
+      Script: {instanceID: 6640}
     - Class: 114
-      Script: {instanceID: 7092}
+      Script: {instanceID: 6922}
     - Class: 114
-      Script: {instanceID: 7136}
+      Script: {instanceID: 6992}
     - Class: 114
-      Script: {instanceID: 7290}
+      Script: {instanceID: 7094}
     - Class: 114
-      Script: {instanceID: 45780}
+      Script: {instanceID: 7138}
+    - Class: 114
+      Script: {instanceID: 7292}
+    - Class: 114
+      Script: {instanceID: 26526}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -380,10 +384,6 @@ ScriptsOnlyBuild:
     - Class: 223
       Script: {instanceID: 0}
     - Class: 224
-      Script: {instanceID: 0}
-    - Class: 258
-      Script: {instanceID: 0}
-    - Class: 850595691
       Script: {instanceID: 0}
   scriptHashData:
   - hash:
@@ -1108,7 +1108,7 @@ ScriptsOnlyBuild:
     className: TMP_TextInfoDebugTool
   - hash:
       serializedVersion: 2
-      Hash: 45d039e142f357a9780625d5d6edf8b4
+      Hash: 52e2e216a3092ad3b4b786ad48bb181a
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: PlayerController
@@ -1534,6 +1534,12 @@ ScriptsOnlyBuild:
     className: OnClickDestroy
   - hash:
       serializedVersion: 2
+      Hash: 65b3a3b9a7779d539ec75a3ceddebdba
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: MoveCamera
+  - hash:
+      serializedVersion: 2
       Hash: c3d3430df9e3ea95e3e3d587961390fb
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
@@ -1562,6 +1568,12 @@ ScriptsOnlyBuild:
     assemblyName: UnityEngine.TestRunner.dll
     namespaceName: UnityEngine.TestTools.TestRunner.Callbacks
     className: PlayModeRunnerCallback
+  - hash:
+      serializedVersion: 2
+      Hash: 9bfa47988c0748342f04ab52ddbe0e2e
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: PlayerMovement
   - hash:
       serializedVersion: 2
       Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
@@ -1844,12 +1856,6 @@ ScriptsOnlyBuild:
     assemblyName: PhotonUnityNetworking.Utilities.dll
     namespaceName: Photon.Pun.UtilityScripts
     className: PhotonTeamsManager
-  - hash:
-      serializedVersion: 2
-      Hash: 5a636470e52079ac1f2169f0eebab701
-    assemblyName: Assembly-CSharp.dll
-    namespaceName: 
-    className: PlayerLook
   platform: 19
   scenePathNames:
   - Assets/Scenes/MainMenu.unity
