@@ -5,10 +5,11 @@ using Photon.Pun;
 using TMPro;
 using Photon.Realtime;
 using System.Linq;
+using UnityEngine.UI;
 
 public class Launcher : MonoBehaviourPunCallbacks
 {
-
+    [Header("Launcher")]
     public static Launcher Instance;
 
     List<RoomInfo> fullRoomList = new List<RoomInfo>();
@@ -22,6 +23,17 @@ public class Launcher : MonoBehaviourPunCallbacks
     [SerializeField] GameObject PlayerListItemPrefab;
     [SerializeField] Transform PlayerListContent;
     [SerializeField] GameObject startGameButton;
+    [SerializeField] GameObject MasterView;
+    [SerializeField] GameObject ClientView;
+    [SerializeField] int LevelIndex = 0;
+    PhotonView PV;
+    [Header("Display Map Name")]
+    public TMP_Text DisplayMap;
+    [SerializeField] string[] MapName;
+    [SerializeField] Sprite[] MapImage;
+
+    public TMP_Text TextDisplay;
+    public Image ImageDisplay;
 
     void Awake()
     {
@@ -30,6 +42,7 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     void Start()
     {
+        PV = GetComponent<PhotonView>();
         Debug.Log("Connectting to Master");
         PhotonNetwork.ConnectUsingSettings();
     }
@@ -76,11 +89,15 @@ public class Launcher : MonoBehaviourPunCallbacks
         }
 
         startGameButton.SetActive(PhotonNetwork.IsMasterClient);
+        MasterView.SetActive(PhotonNetwork.IsMasterClient);
+        ClientView.SetActive(!PhotonNetwork.IsMasterClient);
     }
 
     public override void OnMasterClientSwitched(Player newMasterClient)
     {
         startGameButton.SetActive(PhotonNetwork.IsMasterClient);
+        MasterView.SetActive(PhotonNetwork.IsMasterClient);
+        ClientView.SetActive(!PhotonNetwork.IsMasterClient);
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message)
@@ -91,9 +108,15 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public void StartGame()
     {
-        PhotonNetwork.LoadLevel(1);
+        if (LevelIndex != 0)
+        {
+            PhotonNetwork.LoadLevel(LevelIndex);
+        }
+        else
+        {
+            Debug.Log("select Level first");
+        }
     }
-
     public void LeaveRoom()
     {
         PhotonNetwork.LeaveRoom();
@@ -150,6 +173,31 @@ public class Launcher : MonoBehaviourPunCallbacks
     }
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
+        if (PhotonNetwork.IsMasterClient && LevelIndex != 0)
+        {
+            PV.RPC("Changestate", RpcTarget.Others, LevelIndex);
+        }            
         Instantiate(PlayerListItemPrefab, PlayerListContent).GetComponent<PlayerListItem>().Setup(newPlayer);
+    }
+
+    public void LevelSelect(int Inputindex)
+    {
+        DisplayMap.text = MapName[Inputindex];
+        LevelIndex = Inputindex;
+        PV.RPC("Changestate", RpcTarget.Others, Inputindex);
+    }
+
+    [PunRPC]
+    void Changestate(int state)
+    {
+        LevelIndex = state;
+        Debug.Log("This message from PRV it work the map is : " + LevelIndex);
+        TextDisplay.text = MapName[LevelIndex];
+        ImageDisplay.sprite = MapImage[LevelIndex];
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 }

@@ -15,9 +15,9 @@ public class PlayerMovement : MonoBehaviour {
 
     //Rotation and look
     private float xRotation;
-    public float sensitivity = 50f;
-    private float sensMultiplier = 1f;
-    
+    public float sensitivity = 5;
+    private float sensMultiplier = 10f;
+
     //Movement
     public float moveSpeed = 4500;
     public float maxSpeed = 20;
@@ -48,12 +48,15 @@ public class PlayerMovement : MonoBehaviour {
     private Vector3 wallNormalVector;
 
     PhotonView PV;
+    public SettingsMenu setting_info;
 
     void Awake() {
         rb = GetComponent<Rigidbody>();
     }
     
     void Start() {
+
+        setting_info = FindObjectOfType<SettingsMenu>();
         playerScale =  transform.localScale;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -62,6 +65,7 @@ public class PlayerMovement : MonoBehaviour {
     
     private void FixedUpdate() {
         Movement();
+        sensitivity = setting_info.MouseSens;
     }
 
     private void Update() {

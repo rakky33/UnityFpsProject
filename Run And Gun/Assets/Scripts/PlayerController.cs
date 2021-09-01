@@ -46,12 +46,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
 				return;
 			Destroy(GetComponentInChildren<Camera>().gameObject);
 			Destroy(rb);
-			Destroy(_PlayerController.GetComponent<PlayerController>());
+            Destroy(_PlayerController.GetComponent<PlayerController>());
 			Destroy(_PlayerMovement.GetComponent<PlayerMovement>());
-
-			/*this.GetComponent<PlayerController>().enabled = false;
-            this.GetComponent<PlayerMovement>().enabled = false;*/
-		}
+			
+        }
 	}
 
 	void Update()

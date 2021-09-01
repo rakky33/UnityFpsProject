@@ -35,4 +35,7 @@ public class PlayerManager : MonoBehaviour
         PhotonNetwork.Destroy(controller);
         CreateController();
     }
+
+    public delegate void OnPlayerKilledCallback(string player, string action ,string source);
+    public OnPlayerKilledCallback onPlayerKilledCallback;
 }

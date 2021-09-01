@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
@@ -27,17 +28,29 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 	[SerializeField] Image healthbarImage;
 	[SerializeField] GameObject ui;
 
+	[Header("Scoreborad Sysem")]
+
 	[Header("Other")]
 	PhotonView PV;
 	PlayerManager playerManager;
+	string GotShootName;
+	[SerializeField] PhotonView playerPV;
+	KillFeed killFeedScript;
 
-	void Awake()
+	public int Gun;
+
+    /*public string killingfeed;*/
+
+    void Awake()
     {
 		PV = GetComponent<PhotonView>();
 		playerManager = PhotonView.Find((int)PV.InstantiationData[0]).GetComponent<PlayerManager>();
+		PhotonNetwork.NickName = PlayerPrefs.GetString("username");
 	}
 	void Start()
 	{
+		killFeedScript = FindObjectOfType<KillFeed>();
+		GotShootName = PhotonNetwork.NickName;
 		//destroy other object that isn't mine
 		if (PV.IsMine)
 		{
@@ -51,7 +64,6 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 
 	void Update()
 	{
-		
 		if (!PV.IsMine)
 			return;
 		//You can pick Item by press 1,2
@@ -109,6 +121,7 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 		//If y== -30(or if u fell out of the world) u die
 		if (transform.position.y < -30f)
 		{
+			killFeedScript.CallOuteveryone(0, " ", GotShootName);
 			Debug.Log("Fell die");
 			Die();
 		}
@@ -138,7 +151,6 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 			Hashtable hash = new Hashtable();
 			hash.Add("itemIndex", itemIndex);
 			PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
-
 		}
 	}
 
@@ -157,9 +169,10 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 		PV.RPC("RPC_TakeDamage", RpcTarget.All, damage);
 	}
 
+
 	//Make damage by network synch
 	[PunRPC]
-	void RPC_TakeDamage(float damage)
+	public void RPC_TakeDamage(float damage,PhotonMessageInfo info)
 	{
 		if (!PV.IsMine)
 			return;
@@ -167,17 +180,29 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 		currenthealth -= damage;
 
 		healthbarImage.fillAmount = currenthealth / maxHealth;
-
+		
+		string shootplayer = info.Sender.NickName;
 		if (currenthealth <= 0)
 		{
-			Die();
+			if(itemIndex == 0)
+            {
+				Gun = 1;
+            }
+			else if(itemIndex == 1)
+            {
+				Gun = 2;
+            }
+
+			killFeedScript.CallOuteveryone(Gun, shootplayer, GotShootName);
+
+            Die();
 		}
 	}
+		
 
 	//Die system
 	void Die()
 	{
 		playerManager.Die();
 	}
-
 }

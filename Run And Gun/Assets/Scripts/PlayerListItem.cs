@@ -9,7 +9,7 @@ using UnityEngine;
 public class PlayerListItem : MonoBehaviourPunCallbacks
 {
     [SerializeField] TMP_Text text;
-    Player player;
+    public Player player;
     public void Setup(Player _player)
     {
         player = _player;

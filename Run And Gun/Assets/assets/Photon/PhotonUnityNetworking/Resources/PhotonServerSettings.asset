@@ -41,6 +41,11 @@ MonoBehaviour:
   - RPC_TakeDamage
   - RPC_Shoot
   - RPC_Sound
+  - RPC_ShootSound
+  - RPC_ListenSound
+  - Changestate
+  - KillFeedShown
+  - RPC_KillFeedShown
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0

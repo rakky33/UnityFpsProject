@@ -14,13 +14,23 @@ public class SingleShotGun : Gun
     public AudioClip Pistolsound;
 
     PlayerGunSystem whichGun;
-    
+    [SerializeField] PhotonView playerPV;
+
+    public PlayerGunSystem StartSound;
+
     void Awake()
     {
         whichGun = FindObjectOfType<PlayerGunSystem>();
         audiosource = GetComponent<AudioSource>();
         PV = GetComponent<PhotonView>();
+        
     }
+
+    void Start()
+    {
+        StartSound = GetComponent<PlayerGunSystem>();
+    }
+
     public override void Use()
     {
         Shoot();
@@ -37,7 +47,7 @@ public class SingleShotGun : Gun
         }
     }
 
-    [PunRPC]
+    [PunRPC]    
     void RPC_Shoot(Vector3 hitPosition, Vector3 hitNormal)
     {
         if (whichGun.itemIndex == 0)
