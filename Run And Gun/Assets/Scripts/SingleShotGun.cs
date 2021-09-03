@@ -12,6 +12,7 @@ public class SingleShotGun : Gun
     private AudioSource audiosource;
     public AudioClip AKsound;
     public AudioClip Pistolsound;
+    
 
     PlayerGunSystem whichGun;
     [SerializeField] PhotonView playerPV;
@@ -28,6 +29,7 @@ public class SingleShotGun : Gun
 
     void Start()
     {
+        
         StartSound = GetComponent<PlayerGunSystem>();
     }
 
@@ -66,5 +68,6 @@ public class SingleShotGun : Gun
             bulletImpactObj.transform.SetParent(colliders[0].transform);
         }
     }
+    
 }
 

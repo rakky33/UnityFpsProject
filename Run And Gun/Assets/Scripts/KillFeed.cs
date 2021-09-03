@@ -27,6 +27,7 @@ public class KillFeed : MonoBehaviour
     [PunRPC]
     public void RPC_KillFeedShown(int deathType,string Kname,string GKname)
     {
+        
         GameObject k = Instantiate(killFeed, Spawn.position, Spawn.rotation);
         k.transform.SetParent(Spawn);
 

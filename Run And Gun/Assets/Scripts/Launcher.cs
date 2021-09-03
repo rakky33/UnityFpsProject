@@ -110,11 +110,12 @@ public class Launcher : MonoBehaviourPunCallbacks
     {
         if (LevelIndex != 0)
         {
+            MenuManger.Instance.OpenMenu("loading");
             PhotonNetwork.LoadLevel(LevelIndex);
         }
         else
         {
-            Debug.Log("select Level first");
+            DisplayMap.text = "select Level first";
         }
     }
     public void LeaveRoom()

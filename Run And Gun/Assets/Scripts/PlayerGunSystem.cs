@@ -12,15 +12,25 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 
 	Camera cam;
 
+	
 	[Header("Gun system")]
 	[SerializeField] Item[] items;
 	public float fireRateAK = 20f;
 	private float nextTimeToFireAK = 0f;
-	public float fireRatePistol = 0.5f;
+	public float fireRatePistol = 0.1f;
 	private float nextTimeToFirePistol = 0f;
 	public ParticleSystem MuzzleFlash;
 	public int itemIndex;
 	int previousItemIndex = -1;
+
+	public TMP_Text AmmoDisplay;
+	int AKammo;
+	int MaxAkammo = 30;
+	int Pistolammo;
+	int MaxPistolammo = 9;
+	bool reloading;
+
+	
 
 	[Header("Health system")]
 	const float maxHealth = 100f;
@@ -29,8 +39,11 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 	[SerializeField] GameObject ui;
 
 	[Header("Scoreborad Sysem")]
+	[SerializeField] TMP_Text Kill_DeathDisplay;
 
 	[Header("Other")]
+	private AudioSource audiosource;
+	public AudioClip Killsound;
 	PhotonView PV;
 	PlayerManager playerManager;
 	string GotShootName;
@@ -39,31 +52,70 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 
 	public int Gun;
 
+	public Animator AKanimator;
+	public Animator Pistolanimator;
+
+	public GameObject glasses;
+
     /*public string killingfeed;*/
 
     void Awake()
     {
+		audiosource = GetComponent<AudioSource>();
 		PV = GetComponent<PhotonView>();
 		playerManager = PhotonView.Find((int)PV.InstantiationData[0]).GetComponent<PlayerManager>();
 		PhotonNetwork.NickName = PlayerPrefs.GetString("username");
 	}
 	void Start()
 	{
+		AKanimator.SetBool("isReload", false);
+		Pistolanimator.SetBool("isReload", false);
+		reloading = false;
+		AKammo = MaxAkammo;
+		Pistolammo = MaxPistolammo;
+
 		killFeedScript = FindObjectOfType<KillFeed>();
 		GotShootName = PhotonNetwork.NickName;
 		//destroy other object that isn't mine
 		if (PV.IsMine)
 		{
 			EquipItem(0);
+			Destroy(glasses);
 		}
 		else
-		{
+		{		
 			Destroy(ui);
 		}
 	}
 
 	void Update()
 	{
+		int KillCount = playerManager.killCount;
+		Debug.Log("This kill count for " + GotShootName + "have :" + KillCount + "kill");
+		if (PV.IsMine) 
+		{ 
+			Kill_DeathDisplay.text = "Kill:" + KillCount + "/Deaths:" + playerManager.deathsCount;
+        }
+
+		if (itemIndex == 0)
+        {
+			AmmoDisplay.text = AKammo + "/" + MaxAkammo;
+        }
+		else if(itemIndex == 1)
+        {
+			AmmoDisplay.text = Pistolammo + "/" + MaxPistolammo;
+		}
+
+		
+		if(AKammo != MaxAkammo || Pistolammo != MaxPistolammo)
+        {
+			if (Input.GetKey(KeyCode.R) && !reloading)
+			{
+				StartCoroutine(reload());
+			}
+		}
+        
+
 		if (!PV.IsMine)
 			return;
 		//You can pick Item by press 1,2
@@ -76,7 +128,7 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 			}
 		}
 		//And u can pick Item by scroll wheel
-		if (Input.GetAxisRaw("Mouse ScrollWheel") > 0f)
+		if (Input.GetAxisRaw("Mouse ScrollWheel") > 0f && !reloading)
 		{
 			if (itemIndex >= items.Length - 1)
 			{
@@ -87,7 +139,7 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 				EquipItem(itemIndex + 1);
 			}
 		}
-		else if (Input.GetAxisRaw("Mouse ScrollWheel") < 0f)
+		else if (Input.GetAxisRaw("Mouse ScrollWheel") < 0f && !reloading)
 		{
 			if (itemIndex <= 0)
 			{
@@ -99,29 +151,39 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 			}
 		}
 		//fire AK(U can hold) ((I need to fix it that when u pick up it wait for 3 secound and it can shoot))
-		if (Input.GetButton("Fire1") && Time.time >= nextTimeToFireAK)
+		if (Input.GetButton("Fire1") && Time.time >= nextTimeToFireAK && AKammo > 0 && !reloading)
 		{
 			if (itemIndex == 0)
 			{
+				AKammo -= 1;
 				nextTimeToFireAK = Time.time + 1f / fireRateAK;
 				MuzzleFlash.Play();
 				items[itemIndex].Use();
 			}
 		}
+		else if(AKammo <= 0)
+        {
+			StartCoroutine(reload());
+		}
 		//fire Pistol (U have to click)
-		if (Input.GetButtonDown("Fire1") && Time.time >= nextTimeToFirePistol)
+		if (Input.GetButtonDown("Fire1") && Time.time >= nextTimeToFirePistol && Pistolammo > 0 && !reloading)
 		{
 			if (itemIndex == 1)
 			{
+				Pistolammo -= 1;
 				nextTimeToFireAK = Time.time + 1f / fireRatePistol;
 				MuzzleFlash.Play();
 				items[itemIndex].Use();
 			}
 		}
+		else if (Pistolammo <= 0)
+		{
+			StartCoroutine(reload());
+		}
+
 		//If y== -30(or if u fell out of the world) u die
 		if (transform.position.y < -30f)
 		{
-			killFeedScript.CallOuteveryone(0, " ", GotShootName);
 			Debug.Log("Fell die");
 			Die();
 		}
@@ -170,6 +232,7 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 	}
 
 
+
 	//Make damage by network synch
 	[PunRPC]
 	public void RPC_TakeDamage(float damage,PhotonMessageInfo info)
@@ -194,7 +257,7 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
             }
 
 			killFeedScript.CallOuteveryone(Gun, shootplayer, GotShootName);
-
+			PV.RPC("RPC_CheckKill", RpcTarget.All, shootplayer);
             Die();
 		}
 	}
@@ -203,6 +266,43 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 	//Die system
 	void Die()
 	{
+
 		playerManager.Die();
 	}
+
+    IEnumerator reload()
+    {
+		if(itemIndex == 0)
+        {
+			AKanimator.SetBool("isReload", true);
+			reloading = true;
+			Debug.Log("reloading AK for 0.8f sec");
+			yield return new WaitForSeconds(1.2f);
+			AKammo = MaxAkammo;
+			reloading = false;
+			AKanimator.SetBool("isReload", false);
+		}
+		else if(itemIndex == 1)
+        {
+			Pistolanimator.SetBool("isReload", true);
+			reloading = true;
+			Debug.Log("reloading Pisol for 1.5f sec");
+			yield return new WaitForSeconds(0.8f);
+			Pistolammo = MaxPistolammo;
+			reloading = false;
+			Pistolanimator.SetBool("isReload", false);
+		}
+    }
+
+
+	[PunRPC]
+	public void RPC_CheckKill(string Killname)
+    {
+		if (Killname == GotShootName)
+		{
+			audiosource.PlayOneShot(Killsound);
+			Debug.Log("U kill");
+			playerManager.UpdateKill();
+		}
+    }
 }

@@ -46,6 +46,8 @@ MonoBehaviour:
   - Changestate
   - KillFeedShown
   - RPC_KillFeedShown
+  - RPC_CheckKill
+  - CheckKill
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0

@@ -1,4 +1,6 @@
 using Photon.Pun;
+using Photon.Realtime;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -10,9 +12,13 @@ public class SettingsMenu : MonoBehaviour
     public static bool GameIsPaused = false;
     public static bool SettingUI = false;
 
+    [SerializeField] GameObject ScoreboardListItemPrefab;
+    [SerializeField] Transform ScoreboardListContent;
+
     GameObject ScoreBoard;
     public GameObject pauseMenuUI;
     public GameObject setthingMenuUI;
+    public GameObject PostProcess;
 
     public AudioMixer audioMixer;
     public float MouseSens = 5f;
@@ -102,7 +108,8 @@ public class SettingsMenu : MonoBehaviour
 
     public void QuitGame()
     {
-        Application.Quit();
+        PhotonNetwork.LeaveRoom();
+        SceneManager.LoadScene(0);
     }
 
     //SETTINGS MENU PART
@@ -124,16 +131,29 @@ public class SettingsMenu : MonoBehaviour
 
     void UpdateScoreBoard()
     {
-        playerCount = PhotonNetwork.PlayerList.Length;
+        Player[] players = PhotonNetwork.PlayerList;
 
-        var playerNames = new StringBuilder();
-        
-        foreach(var player in PhotonNetwork.PlayerList)
+        foreach (Transform child in ScoreboardListContent)
         {
-            playerNames.Append(player.NickName + "\n");
+            Destroy(child.gameObject);
         }
 
-        string output = "Player Count:" + playerCount.ToString() + "\n" + playerNames.ToString();
-        ScoreBoard.transform.Find("Text").GetComponent<Text>().text = output;
+
+        for (int i = 0; i < players.Count(); i++)
+        {
+            Instantiate(ScoreboardListItemPrefab, ScoreboardListContent).GetComponent<scoreBoardScript>().Setup(players[i]);
+        }
+    } 
+
+    public void PostPocessEnable(bool status)
+    {
+        if(status == true)
+        {
+            PostProcess.gameObject.SetActive(true);
+        }
+        else if(status == false)
+        {
+            PostProcess.gameObject.SetActive(false);
+        }
     }
 }
