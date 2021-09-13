@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.541777, g: 0.7512059, b: 0.8454138, a: 1}
+  m_IndirectSpecularColor: {r: 0.5417602, g: 0.7511705, b: 0.84537506, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -5294,7 +5294,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 997408672}
-  - component: {fileID: 997408673}
   m_Layer: 5
   m_Name: ScoreBoard
   m_TagString: Untagged
@@ -5323,18 +5322,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &997408673
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 997408671}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6e28aff24105c0142997f2667fd4c86c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1014423084
 GameObject:
   m_ObjectHideFlags: 0
@@ -9556,7 +9543,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 836b9c033bd8c6a458787f3b493afee5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ScoreboardListItemPrefab: {fileID: 1285234337562569664, guid: 2fccad06d2caaed4895ef0996a4e6f2a, type: 3}
+  ScoreboardListItemPrefab: {fileID: 840226325093689417, guid: 8e29047583a14ff4ab291ed1930f59c5, type: 3}
   ScoreboardListContent: {fileID: 3239491325949642510}
   pauseMenuUI: {fileID: 1948595837}
   setthingMenuUI: {fileID: 1782772624}

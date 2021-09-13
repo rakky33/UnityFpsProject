@@ -141,7 +141,7 @@ public class SettingsMenu : MonoBehaviour
 
         for (int i = 0; i < players.Count(); i++)
         {
-            Instantiate(ScoreboardListItemPrefab, ScoreboardListContent).GetComponent<scoreBoardScript>().Setup(players[i]);
+            Instantiate(ScoreboardListItemPrefab, ScoreboardListContent).GetComponent<Scoreboard_Script>().Setup(players[i],players.Count());
         }
     } 
 

@@ -12,13 +12,11 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 
 	Camera cam;
 
-	
+
 	[Header("Gun system")]
 	[SerializeField] Item[] items;
 	public float fireRateAK = 20f;
 	private float nextTimeToFireAK = 0f;
-	public float fireRatePistol = 0.1f;
-	private float nextTimeToFirePistol = 0f;
 	public ParticleSystem MuzzleFlash;
 	public int itemIndex;
 	int previousItemIndex = -1;
@@ -30,7 +28,7 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 	int MaxPistolammo = 9;
 	bool reloading;
 
-	
+
 
 	[Header("Health system")]
 	const float maxHealth = 100f;
@@ -40,6 +38,7 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 
 	[Header("Scoreborad Sysem")]
 	[SerializeField] TMP_Text Kill_DeathDisplay;
+	[SerializeField] GameObject KDGO;
 
 	[Header("Other")]
 	private AudioSource audiosource;
@@ -57,10 +56,14 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 
 	public GameObject glasses;
 
-    /*public string killingfeed;*/
+	/**
+	** ItemIndex **
+	0 = AK
+	1 = Pistol
+	*/
 
-    void Awake()
-    {
+	void Awake()
+	{
 		audiosource = GetComponent<AudioSource>();
 		PV = GetComponent<PhotonView>();
 		playerManager = PhotonView.Find((int)PV.InstantiationData[0]).GetComponent<PlayerManager>();
@@ -83,41 +86,41 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 			Destroy(glasses);
 		}
 		else
-		{		
+		{
+			Destroy(KDGO);
 			Destroy(ui);
 		}
 	}
 
 	void Update()
 	{
+		if (!PV.IsMine)
+			return;
 		int KillCount = playerManager.killCount;
-		Debug.Log("This kill count for " + GotShootName + "have :" + KillCount + "kill");
-		if (PV.IsMine) 
-		{ 
+		if (PV.IsMine)
+		{
 			Kill_DeathDisplay.text = "Kill:" + KillCount + "/Deaths:" + playerManager.deathsCount;
-        }
+		}
 
 		if (itemIndex == 0)
-        {
+		{
 			AmmoDisplay.text = AKammo + "/" + MaxAkammo;
-        }
-		else if(itemIndex == 1)
-        {
+		}
+		else if (itemIndex == 1)
+		{
 			AmmoDisplay.text = Pistolammo + "/" + MaxPistolammo;
 		}
 
-		
-		if(AKammo != MaxAkammo || Pistolammo != MaxPistolammo)
-        {
+
+		if (AKammo != MaxAkammo || Pistolammo != MaxPistolammo)
+		{
 			if (Input.GetKey(KeyCode.R) && !reloading)
 			{
 				StartCoroutine(reload());
 			}
 		}
-        
 
-		if (!PV.IsMine)
-			return;
+
 		//You can pick Item by press 1,2
 		for (int i = 0; i < items.Length; i++)
 		{
@@ -150,36 +153,40 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 				EquipItem(itemIndex - 1);
 			}
 		}
-		//fire AK(U can hold) ((I need to fix it that when u pick up it wait for 3 secound and it can shoot))
-		if (Input.GetButton("Fire1") && Time.time >= nextTimeToFireAK && AKammo > 0 && !reloading)
+		if (itemIndex == 0)
 		{
-			if (itemIndex == 0)
+			//fire AK(U can hold) ((I need to fix it that when u pick up it wait for 3 secound and it can shoot))
+			if (Input.GetButton("Fire1") && Time.time >= nextTimeToFireAK && AKammo > 0 && !reloading)
+			{ 
+				Debug.Log("Shoot AK");
+			
+					AKammo -= 1;
+					nextTimeToFireAK = Time.time + 1f / fireRateAK;
+					MuzzleFlash.Play();
+					items[itemIndex].Use();
+				}
+			else if (AKammo <= 0)
 			{
-				AKammo -= 1;
-				nextTimeToFireAK = Time.time + 1f / fireRateAK;
-				MuzzleFlash.Play();
-				items[itemIndex].Use();
+				StartCoroutine(reload());
 			}
 		}
-		else if(AKammo <= 0)
-        {
-			StartCoroutine(reload());
-		}
-		//fire Pistol (U have to click)
-		if (Input.GetButtonDown("Fire1") && Time.time >= nextTimeToFirePistol && Pistolammo > 0 && !reloading)
+
+		if (itemIndex == 1)
 		{
-			if (itemIndex == 1)
-			{
+			//fire Pistol (U have to click)
+            if (Input.GetButtonDown("Fire1") && Pistolammo > 0 && !reloading)
+            {
+				Debug.Log("Shoot Pistol");
 				Pistolammo -= 1;
-				nextTimeToFireAK = Time.time + 1f / fireRatePistol;
 				MuzzleFlash.Play();
 				items[itemIndex].Use();
 			}
+			else if (Pistolammo <= 0)
+			{
+				StartCoroutine(reload());
+			}
 		}
-		else if (Pistolammo <= 0)
-		{
-			StartCoroutine(reload());
-		}
+		
 
 		//If y== -30(or if u fell out of the world) u die
 		if (transform.position.y < -30f)
@@ -235,7 +242,7 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 
 	//Make damage by network synch
 	[PunRPC]
-	public void RPC_TakeDamage(float damage,PhotonMessageInfo info)
+	public void RPC_TakeDamage(float damage, PhotonMessageInfo info)
 	{
 		if (!PV.IsMine)
 			return;
@@ -243,25 +250,25 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 		currenthealth -= damage;
 
 		healthbarImage.fillAmount = currenthealth / maxHealth;
-		
+
 		string shootplayer = info.Sender.NickName;
 		if (currenthealth <= 0)
 		{
-			if(itemIndex == 0)
-            {
+			if (itemIndex == 0)
+			{
 				Gun = 1;
-            }
-			else if(itemIndex == 1)
-            {
+			}
+			else if (itemIndex == 1)
+			{
 				Gun = 2;
-            }
+			}
 
 			killFeedScript.CallOuteveryone(Gun, shootplayer, GotShootName);
 			PV.RPC("RPC_CheckKill", RpcTarget.All, shootplayer);
-            Die();
+			Die();
 		}
 	}
-		
+
 
 	//Die system
 	void Die()
@@ -270,10 +277,10 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 		playerManager.Die();
 	}
 
-    IEnumerator reload()
-    {
-		if(itemIndex == 0)
-        {
+	IEnumerator reload()
+	{
+		if (itemIndex == 0)
+		{
 			AKanimator.SetBool("isReload", true);
 			reloading = true;
 			Debug.Log("reloading AK for 0.8f sec");
@@ -282,8 +289,8 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 			reloading = false;
 			AKanimator.SetBool("isReload", false);
 		}
-		else if(itemIndex == 1)
-        {
+		else if (itemIndex == 1)
+		{
 			Pistolanimator.SetBool("isReload", true);
 			reloading = true;
 			Debug.Log("reloading Pisol for 1.5f sec");
@@ -292,17 +299,17 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 			reloading = false;
 			Pistolanimator.SetBool("isReload", false);
 		}
-    }
+	}
 
 
 	[PunRPC]
 	public void RPC_CheckKill(string Killname)
-    {
+	{
 		if (Killname == GotShootName)
 		{
 			audiosource.PlayOneShot(Killsound);
 			Debug.Log("U kill");
 			playerManager.UpdateKill();
 		}
-    }
+	}
 }
