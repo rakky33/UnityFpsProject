@@ -49,6 +49,7 @@ public class PlayerMovement : MonoBehaviour {
 
     PhotonView PV;
     public SettingsMenu setting_info;
+    private ziplineScript _zippingbool;
 
     void Awake() {
         rb = GetComponent<Rigidbody>();
@@ -60,15 +61,20 @@ public class PlayerMovement : MonoBehaviour {
         playerScale =  transform.localScale;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        _zippingbool = FindObjectOfType<ziplineScript>();
     }
 
     
     private void FixedUpdate() {
-        Movement();
+        if (_zippingbool.zipping == false)
+        {
+            Movement();
+        }
         sensitivity = setting_info.MouseSens;
     }
 
-    private void Update() {
+    private void Update() 
+    {
         MyInput();
         Look();
     }

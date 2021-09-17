@@ -166,5 +166,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07cbcb852d205084a89e24c5c29c4275, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  killCount: 0
   deathsCount: 0

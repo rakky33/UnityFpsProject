@@ -2,6 +2,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using System.Linq;
 using System.Text;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
@@ -14,6 +15,8 @@ public class SettingsMenu : MonoBehaviour
 
     [SerializeField] GameObject ScoreboardListItemPrefab;
     [SerializeField] Transform ScoreboardListContent;
+    [SerializeField] TMP_Text TittleText;
+    [SerializeField] TMP_Text PlayerNameText;
 
     GameObject ScoreBoard;
     public GameObject pauseMenuUI;
@@ -34,6 +37,8 @@ public class SettingsMenu : MonoBehaviour
 
     void Start()
     {
+        TittleText.text = PhotonNetwork.CurrentRoom.Name;
+        PlayerNameText.text = PhotonNetwork.NickName.ToString();
         ScoreBoard = GameObject.Find("Canvas").transform.Find("ScoreBoard").gameObject;
     }
 

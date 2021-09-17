@@ -28,6 +28,8 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 	int MaxPistolammo = 9;
 	bool reloading;
 
+	[SerializeField] private float checkOffset = 1f;
+	[SerializeField] private float checkRadius = 2f;
 
 
 	[Header("Health system")]
@@ -55,6 +57,12 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 	public Animator Pistolanimator;
 
 	public GameObject glasses;
+	public GameObject AmmoGO;
+	int KillCount;
+
+	public GameObject playerController_prefs;
+	[SerializeField] GameObject ZippinUi;
+
 
 	/**
 	** ItemIndex **
@@ -87,6 +95,7 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 		}
 		else
 		{
+			Destroy(AmmoGO);
 			Destroy(KDGO);
 			Destroy(ui);
 		}
@@ -96,10 +105,23 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 	{
 		if (!PV.IsMine)
 			return;
-		int KillCount = playerManager.killCount;
+
+		if (Input.GetKeyDown(KeyCode.E))
+        {
+			RaycastHit[] hits = Physics.SphereCastAll(transform.position + new Vector3(0, checkOffset, 0), checkRadius,Vector3.up);
+			foreach(RaycastHit hit in hits)
+            {
+				if(hit.collider.tag == "ZipLine")
+                {
+					hit.collider.GetComponent<ziplineScript>().StartZipline(playerController_prefs);
+                }
+            }
+        }
+
 		if (PV.IsMine)
 		{
-			Kill_DeathDisplay.text = "Kill:" + KillCount + "/Deaths:" + playerManager.deathsCount;
+			/*Debug.Log("U kill for: " + KillCount);*/
+			Kill_DeathDisplay.text = "Deaths:" + playerManager.deathsCount;
 		}
 
 		if (itemIndex == 0)
@@ -196,7 +218,25 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 		}
 	}
 
+    private void OnTriggerEnter(Collider target)
+    {
+		if(!PV.IsMine)
+				return;
+		else if (target.gameObject.tag.Equals("ZipLine"))
+		{
+			ZippinUi.SetActive(true);
+		}
+	}
 
+	private void OnTriggerExit(Collider target)
+	{
+		if (!PV.IsMine)
+			return;
+		else if (target.gameObject.tag.Equals("ZipLine"))
+		{
+			ZippinUi.SetActive(false);
+		}
+	}
 
 	//Decide what item it should pick
 	void EquipItem(int _index)
@@ -244,10 +284,11 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 	[PunRPC]
 	public void RPC_TakeDamage(float damage, PhotonMessageInfo info)
 	{
-		if (!PV.IsMine)
-			return;
 
-		currenthealth -= damage;
+        if (!PV.IsMine)
+            return;
+
+        currenthealth -= damage;
 
 		healthbarImage.fillAmount = currenthealth / maxHealth;
 
@@ -264,7 +305,7 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 			}
 
 			killFeedScript.CallOuteveryone(Gun, shootplayer, GotShootName);
-			PV.RPC("RPC_CheckKill", RpcTarget.All, shootplayer);
+			
 			Die();
 		}
 	}
@@ -273,7 +314,7 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 	//Die system
 	void Die()
 	{
-
+		Debug.Log(GotShootName + " has die");
 		playerManager.Die();
 	}
 
@@ -284,7 +325,7 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 			AKanimator.SetBool("isReload", true);
 			reloading = true;
 			Debug.Log("reloading AK for 0.8f sec");
-			yield return new WaitForSeconds(1.2f);
+			yield return new WaitForSeconds(1f);
 			AKammo = MaxAkammo;
 			reloading = false;
 			AKanimator.SetBool("isReload", false);
@@ -298,18 +339,6 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 			Pistolammo = MaxPistolammo;
 			reloading = false;
 			Pistolanimator.SetBool("isReload", false);
-		}
-	}
-
-
-	[PunRPC]
-	public void RPC_CheckKill(string Killname)
-	{
-		if (Killname == GotShootName)
-		{
-			audiosource.PlayOneShot(Killsound);
-			Debug.Log("U kill");
-			playerManager.UpdateKill();
 		}
 	}
 }

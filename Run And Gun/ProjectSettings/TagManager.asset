@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Obstacle
   - Player Room
+  - ZipLine
   layers:
   - Default
   - TransparentFX

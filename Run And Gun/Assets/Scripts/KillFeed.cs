@@ -1,12 +1,13 @@
 using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class KillFeed : MonoBehaviour
 {
-    public GameObject killFeed;
+    public GameObject killFeedPrefs;
     public Transform Spawn;
     PhotonView PV;
 
@@ -25,28 +26,28 @@ public class KillFeed : MonoBehaviour
     }
 
     [PunRPC]
-    public void RPC_KillFeedShown(int deathType,string Kname,string GKname)
+    public void RPC_KillFeedShown(int deathType, string Kname, string GKname)
     {
-        
-        GameObject k = Instantiate(killFeed, Spawn.position, Spawn.rotation);
+
+        GameObject k = Instantiate(killFeedPrefs, Spawn.position, Spawn.rotation);
         k.transform.SetParent(Spawn);
 
-        Text playerName;
-        Text enemyName;
+        TMP_Text playerName;
+        TMP_Text enemyName;
 
         Image dImage;
 
         Debug.Log(deathType + Kname + GKname);
         foreach (Transform child in k.transform)
         {
-            if (child.name == "Pname")
+            if (child.name == "KillName")
             {
-                playerName = child.GetComponent<Text>();
+                playerName = child.GetComponent<TMP_Text>();
                 playerName.text = "<color=white>" + Kname + "</color>";
             }
-            else if (child.name == "Ename")
+            else if (child.name == "GKillName")
             {
-                enemyName = child.GetComponent<Text>();
+                enemyName = child.GetComponent<TMP_Text>();
                 enemyName.text = "<color=red>" + GKname + "</color>";
             }
             else if (child.name == "DImage")
