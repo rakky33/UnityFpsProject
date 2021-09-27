@@ -44,8 +44,8 @@ public class SingleShotGun : Gun
         ray.origin = cam.transform.position;
         if(Physics.Raycast(ray, out RaycastHit hit))
         {
-            hit.collider.gameObject.GetComponent<IDmangeable>()?.TakeDamage(((GunInfo)itemInfo).damage);
-            PV.RPC("RPC_Shoot", RpcTarget.All, hit.point, hit.normal);
+                hit.collider.gameObject.GetComponent<IDmangeable>()?.TakeDamage(((GunInfo)itemInfo).damage);
+                PV.RPC("RPC_Shoot", RpcTarget.All, hit.point, hit.normal);
         }
     }
 

@@ -4,6 +4,7 @@ ScriptsOnlyBuild:
     - Billboard
     - FPS_PING_Script
     - GunInfo
+    - HelthBoxScript
     - KillFeed
     - Launcher
     - Menu
@@ -24,8 +25,10 @@ ScriptsOnlyBuild:
     - SpawnManager
     - Spawnpoint
     - UsernameDisplay
-    - ziplineScript
+    - healthBoxManager
     PhotonUnityNetworking.Editor.dll:
+    - Photon.Pun.PhotonTransformViewEditor
+    - Photon.Pun.PhotonViewInspector
     - Photon.Pun.PunSceneSettings
     PhotonUnityNetworking.dll:
     - Photon.Pun.PhotonTransformView
@@ -132,8 +135,6 @@ ScriptsOnlyBuild:
       Script: {instanceID: 0}
     - Class: 48
       Script: {instanceID: 0}
-    - Class: 54
-      Script: {instanceID: 0}
     - Class: 64
       Script: {instanceID: 0}
     - Class: 65
@@ -215,12 +216,10 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 7002}
     - Class: 114
-      Script: {instanceID: 7300}
+      Script: {instanceID: 21186}
     - Class: 114
-      Script: {instanceID: 22870}
+      Script: {instanceID: 27844}
     - Class: 115
-      Script: {instanceID: 0}
-    - Class: 120
       Script: {instanceID: 0}
     - Class: 128
       Script: {instanceID: 0}
@@ -280,8 +279,6 @@ ScriptsOnlyBuild:
     - Class: 82
       Script: {instanceID: 0}
     - Class: 83
-      Script: {instanceID: 0}
-    - Class: 89
       Script: {instanceID: 0}
     - Class: 91
       Script: {instanceID: 0}
@@ -438,9 +435,9 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 7230}
     - Class: 114
-      Script: {instanceID: 7390}
+      Script: {instanceID: 7388}
     - Class: 114
-      Script: {instanceID: 93276}
+      Script: {instanceID: 57248}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -538,7 +535,7 @@ ScriptsOnlyBuild:
     className: Selectable
   - hash:
       serializedVersion: 2
-      Hash: 311ec6798930fa99136c4862195f1017
+      Hash: 704fa19040b9616fea156adce9baa291
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: PlayerGunSystem
@@ -1942,12 +1939,6 @@ ScriptsOnlyBuild:
     className: PunTurnManager
   - hash:
       serializedVersion: 2
-      Hash: 9be776f657bab7ffc353f25fa5a74161
-    assemblyName: Assembly-CSharp.dll
-    namespaceName: 
-    className: ziplineScript
-  - hash:
-      serializedVersion: 2
       Hash: 8220b46879dc5e37db1b940c938f5744
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
@@ -1972,7 +1963,7 @@ ScriptsOnlyBuild:
     className: TouchInputModule
   - hash:
       serializedVersion: 2
-      Hash: 25ed90e8a0f232af08c310e57a597d85
+      Hash: 36f3254bcb1fa71640264bbba967c6bd
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: PlayerManager
@@ -1982,6 +1973,18 @@ ScriptsOnlyBuild:
     assemblyName: PhotonUnityNetworking.Utilities.dll
     namespaceName: Photon.Pun.UtilityScripts
     className: PhotonTeamsManager
+  - hash:
+      serializedVersion: 2
+      Hash: 9dd62c79b5b7c186cd0dd3301491bcdc
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: HelthBoxScript
+  - hash:
+      serializedVersion: 2
+      Hash: 992c6bca31d7afc7087beeb5502e988b
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: healthBoxManager
   platform: 19
   scenePathNames:
   - Assets/Scenes/MainMenu.unity

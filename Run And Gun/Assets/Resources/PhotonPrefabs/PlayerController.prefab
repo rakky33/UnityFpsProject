@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 1639380992336768636}
   m_Layer: 0
   m_Name: PlayerController
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -145,21 +145,20 @@ MonoBehaviour:
   MuzzleFlash: {fileID: 5741906736223900427}
   itemIndex: 2
   AmmoDisplay: {fileID: 3375379414741646599}
-  checkOffset: 1
-  checkRadius: 2
+  currenthealth: 100
   healthbarImage: {fileID: 4854063367344795676}
   ui: {fileID: 4427015272882573486}
   Kill_DeathDisplay: {fileID: 8208024475878683524}
   KDGO: {fileID: 3134754004548448124}
   Killsound: {fileID: 0}
+  HealSound: {fileID: 8300000, guid: e9068a50fdad7c441b832c7e9414ca3c, type: 3}
+  ReloadSound: {fileID: 8300000, guid: f84036c271be5f9418b61bd069dc8cea, type: 3}
   playerPV: {fileID: 8724614252421183274}
   Gun: 0
   AKanimator: {fileID: 1833394115772517525}
   Pistolanimator: {fileID: 1128364142715900220}
   glasses: {fileID: 3149911425028827870}
   AmmoGO: {fileID: 8009781623931860490}
-  playerController_prefs: {fileID: 198370438574277099}
-  ZippinUi: {fileID: 6593073540199073120}
 --- !u!33 &4877377788803760822
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -251,7 +250,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.2
   m_Pitch: 1
   Loop: 0
   Mute: 0

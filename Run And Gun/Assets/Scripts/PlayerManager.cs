@@ -15,6 +15,10 @@ public class PlayerManager : MonoBehaviour
     PhotonView PV;
 
     GameObject controller;
+
+    private AudioSource audiosource;
+    public AudioClip Diesound;
+
     void Awake()
     {
 
@@ -26,6 +30,7 @@ public class PlayerManager : MonoBehaviour
     {
         if (PV.IsMine)
         {
+            audiosource = GetComponent<AudioSource>();
             CreateController();
         }
     }
@@ -40,6 +45,7 @@ public class PlayerManager : MonoBehaviour
     public void Die()
     {
         UpdateDeaths();
+        audiosource.PlayOneShot(Diesound);
         PhotonNetwork.Destroy(controller);
         CreateController();
     }

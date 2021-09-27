@@ -28,13 +28,9 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 	int MaxPistolammo = 9;
 	bool reloading;
 
-	[SerializeField] private float checkOffset = 1f;
-	[SerializeField] private float checkRadius = 2f;
-
-
 	[Header("Health system")]
 	const float maxHealth = 100f;
-	float currenthealth = maxHealth;
+	[SerializeField]float currenthealth = maxHealth;
 	[SerializeField] Image healthbarImage;
 	[SerializeField] GameObject ui;
 
@@ -45,6 +41,8 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 	[Header("Other")]
 	private AudioSource audiosource;
 	public AudioClip Killsound;
+	public AudioClip HealSound;
+	public AudioClip ReloadSound;
 	PhotonView PV;
 	PlayerManager playerManager;
 	string GotShootName;
@@ -59,9 +57,7 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 	public GameObject glasses;
 	public GameObject AmmoGO;
 	int KillCount;
-
-	public GameObject playerController_prefs;
-	[SerializeField] GameObject ZippinUi;
+	float VB_HEAL;
 
 
 	/**
@@ -105,18 +101,6 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 	{
 		if (!PV.IsMine)
 			return;
-
-		if (Input.GetKeyDown(KeyCode.E))
-        {
-			RaycastHit[] hits = Physics.SphereCastAll(transform.position + new Vector3(0, checkOffset, 0), checkRadius,Vector3.up);
-			foreach(RaycastHit hit in hits)
-            {
-				if(hit.collider.tag == "ZipLine")
-                {
-					hit.collider.GetComponent<ziplineScript>().StartZipline(playerController_prefs);
-                }
-            }
-        }
 
 		if (PV.IsMine)
 		{
@@ -218,28 +202,9 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 		}
 	}
 
-    private void OnTriggerEnter(Collider target)
-    {
-		if(!PV.IsMine)
-				return;
-		else if (target.gameObject.tag.Equals("ZipLine"))
-		{
-			ZippinUi.SetActive(true);
-		}
-	}
 
-	private void OnTriggerExit(Collider target)
-	{
-		if (!PV.IsMine)
-			return;
-		else if (target.gameObject.tag.Equals("ZipLine"))
-		{
-			ZippinUi.SetActive(false);
-		}
-	}
-
-	//Decide what item it should pick
-	void EquipItem(int _index)
+    //Decide what item it should pick
+    void EquipItem(int _index)
 	{
 		if (_index == previousItemIndex)
 			return;
@@ -278,7 +243,15 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 		PV.RPC("RPC_TakeDamage", RpcTarget.All, damage);
 	}
 
-
+	public void heal()
+    {
+		audiosource.PlayOneShot(HealSound);
+		if (currenthealth <= 50)
+        {
+			currenthealth += 50;
+			healthbarImage.fillAmount = currenthealth / maxHealth;			
+		}
+    }
 
 	//Make damage by network synch
 	[PunRPC]
@@ -320,6 +293,7 @@ public class PlayerGunSystem : MonoBehaviourPunCallbacks, IDmangeable
 
 	IEnumerator reload()
 	{
+		audiosource.PlayOneShot(ReloadSound);
 		if (itemIndex == 0)
 		{
 			AKanimator.SetBool("isReload", true);
